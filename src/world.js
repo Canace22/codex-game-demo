@@ -36,15 +36,15 @@
     const palette = {
       grass: 0x304b3d,
       moss: 0x1f4032,
-      path: 0x665947,
-      pathEdge: 0x403a31,
-      stone: 0x4d5752,
-      stoneDark: 0x29383a,
+      path: 0xb0b8b3,
+      pathEdge: 0x75817e,
+      stone: 0xa0aaa5,
+      stoneDark: 0x637173,
       plaster: 0x756c5c,
-      wood: 0x2d1b14,
-      woodLight: 0x513522,
-      roof: 0x112d2c,
-      roofEdge: 0x1d4b46,
+      wood: 0x8d6d58,
+      woodLight: 0xb18b6d,
+      roof: 0x647875,
+      roofEdge: 0x668d86,
       cloth: 0x672d25,
       river: 0x175867,
       riverLight: 0x8ed0c4,
@@ -64,22 +64,30 @@
         emissiveIntensity: settings.emissiveIntensity === undefined ? 0 : settings.emissiveIntensity,
         side: settings.side === undefined ? THREE.FrontSide : settings.side,
         depthWrite: settings.depthWrite === undefined ? true : settings.depthWrite,
+        map: settings.map || null,
+        flatShading: settings.flatShading === undefined ? true : settings.flatShading,
       });
+    }
+
+    function themedTexture(name) {
+      return typeof window.GY.getThemeTexture === 'function'
+        ? window.GY.getThemeTexture(name)
+        : null;
     }
 
     const materials = {
       grass: makeMaterial(palette.grass),
       moss: makeMaterial(palette.moss),
-      path: makeMaterial(palette.path, { roughness: 1 }),
+      path: makeMaterial(palette.path, { roughness: 1, map: themedTexture('stone'), flatShading: false }),
       pathEdge: makeMaterial(palette.pathEdge),
-      stone: makeMaterial(palette.stone),
-      stoneDark: makeMaterial(palette.stoneDark),
+      stone: makeMaterial(palette.stone, { map: themedTexture('stone'), flatShading: false }),
+      stoneDark: makeMaterial(palette.stoneDark, { map: themedTexture('stone'), flatShading: false }),
       plaster: makeMaterial(palette.plaster),
-      wood: makeMaterial(palette.wood),
-      woodLight: makeMaterial(palette.woodLight),
-      roof: makeMaterial(palette.roof),
-      roofEdge: makeMaterial(palette.roofEdge),
-      cloth: makeMaterial(palette.cloth, { side: THREE.DoubleSide }),
+      wood: makeMaterial(palette.wood, { map: themedTexture('cedar'), flatShading: false }),
+      woodLight: makeMaterial(palette.woodLight, { map: themedTexture('cedar'), flatShading: false }),
+      roof: makeMaterial(palette.roof, { map: themedTexture('cedar'), flatShading: false }),
+      roofEdge: makeMaterial(palette.roofEdge, { map: themedTexture('cedar'), flatShading: false }),
+      cloth: makeMaterial(palette.cloth, { side: THREE.DoubleSide, map: themedTexture('cloth'), flatShading: false }),
       darkCloth: makeMaterial(0x172426),
       river: makeMaterial(palette.river, {
         roughness: 0.24,
@@ -253,6 +261,7 @@
     function makeRibbon(zStart, zEnd, segments, widthAt, centerAt, heightAt, material, yOffset) {
       const positions = [];
       const indices = [];
+      const uvs = [];
       const offset = yOffset || 0;
       for (let i = 0; i <= segments; i += 1) {
         const amount = i / segments;
@@ -261,6 +270,7 @@
         const center = typeof centerAt === 'function' ? centerAt(z) : centerAt;
         const y = (typeof heightAt === 'function' ? heightAt(z) : heightAt) + offset;
         positions.push(center - width / 2, y, z, center + width / 2, y, z);
+        uvs.push(0, amount * 3, 1, amount * 3);
         if (i < segments) {
           const base = i * 2;
           if (zEnd >= zStart) {
@@ -272,6 +282,7 @@
       }
       const geometry = new THREE.BufferGeometry();
       geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
       geometry.setIndex(indices);
       geometry.computeVertexNormals();
       return addMesh(geometry, material, [0, 0, 0], {
@@ -456,7 +467,10 @@
       npc.userData.role = name;
       root.add(npc);
       addWalkCircle(x, z, 0.58, name);
-      const robeMaterial = makeMaterial(robeColor);
+      const robeMaterial = makeMaterial(robeColor, {
+        map: themedTexture('cloth'),
+        flatShading: false,
+      });
       addMesh(new THREE.CylinderGeometry(0.34, 0.62, 1.55, 7), robeMaterial, [0, 0.79, 0], { parent: npc });
       addMesh(new THREE.SphereGeometry(0.27, 9, 7), makeMaterial(0xd2a47f), [0, 1.77, 0], { parent: npc });
       addCylinder(0.13, 0.2, 0.38, 7, materials.darkCloth, [0, 2.11, 0], { parent: npc });

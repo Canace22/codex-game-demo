@@ -56,7 +56,8 @@
   renderer.toneMappingExposure = 1.08;
   renderer.setClearColor(0x91aaa7, 0.18);
 
-  scene.add(new THREE.HemisphereLight(0xdde8dd, 0x26332c, 1.25));
+  const skyLight = new THREE.HemisphereLight(0xdde8dd, 0x26332c, 1.25);
+  scene.add(skyLight);
   const sun = new THREE.DirectionalLight(0xffe4b8, 2.05);
   sun.position.set(-34, 48, 35);
   sun.castShadow = true;
@@ -68,6 +69,50 @@
   sun.shadow.camera.near = 1;
   sun.shadow.camera.far = 130;
   scene.add(sun);
+
+  const mood = {
+    day: {
+      fog: new THREE.Color(0x91aaa7),
+      sky: new THREE.Color(0xdde8dd),
+      ground: new THREE.Color(0x26332c),
+      sun: new THREE.Color(0xffe4b8),
+      exposure: 1.08,
+      clearAlpha: 0.18,
+    },
+    temple: {
+      fog: new THREE.Color(0x233743),
+      sky: new THREE.Color(0x6f8993),
+      ground: new THREE.Color(0x111b22),
+      sun: new THREE.Color(0xb2c9d2),
+      exposure: 0.78,
+      clearAlpha: 0.62,
+    },
+  };
+  let clearAlpha = mood.day.clearAlpha;
+  const rainRandom = GY.seededRandom(20260820);
+  const rainPositions = new Float32Array(150 * 6);
+  for (let index = 0; index < rainPositions.length; index += 6) {
+    const x = (rainRandom() - 0.5) * 24;
+    const y = rainRandom() * 14;
+    const z = (rainRandom() - 0.5) * 24;
+    rainPositions[index] = x;
+    rainPositions[index + 1] = y;
+    rainPositions[index + 2] = z;
+    rainPositions[index + 3] = x + 0.08;
+    rainPositions[index + 4] = y - 0.58;
+    rainPositions[index + 5] = z + 0.08;
+  }
+  const rainGeometry = new THREE.BufferGeometry();
+  rainGeometry.setAttribute('position', new THREE.BufferAttribute(rainPositions, 3));
+  const rainMaterial = new THREE.LineBasicMaterial({
+    color: 0xaec8ce,
+    transparent: true,
+    opacity: 0,
+    depthWrite: false,
+  });
+  const rain = new THREE.LineSegments(rainGeometry, rainMaterial);
+  rain.visible = false;
+  scene.add(rain);
 
   const world = GY.createWorld(scene);
   const effects = GY.createEffects(scene);
@@ -589,9 +634,45 @@
     combat.update(dt, state.playTime);
     updateNearby();
     updateQuestTriggers();
+    updateAtmosphere(dt);
     world.update(dt, state.playTime);
     updateCamera(dt);
     ui.update(snapshotForUi());
+  }
+
+  function usesTempleMood() {
+    return state.stage === Stage.TEMPLE_DEFENSE
+      || state.stage === Stage.BOSS_INTRO
+      || state.stage === Stage.BOSS_FIGHT;
+  }
+
+  function updateAtmosphere(dt) {
+    const target = usesTempleMood() ? mood.temple : mood.day;
+    const amount = 1 - Math.exp(-Math.max(0, dt) * 1.4);
+    scene.fog.color.lerp(target.fog, amount);
+    skyLight.color.lerp(target.sky, amount);
+    skyLight.groundColor.lerp(target.ground, amount);
+    sun.color.lerp(target.sun, amount);
+    renderer.toneMappingExposure = GY.damp(renderer.toneMappingExposure, target.exposure, 1.4, dt);
+    clearAlpha = GY.damp(clearAlpha, target.clearAlpha, 1.4, dt);
+    renderer.setClearColor(scene.fog.color, clearAlpha);
+
+    const rainTarget = usesTempleMood() ? 0.48 : 0;
+    rainMaterial.opacity = GY.damp(rainMaterial.opacity, rainTarget, 2.2, dt);
+    rain.visible = rainMaterial.opacity > 0.01;
+    rain.position.set(player.visual.group.position.x, 0, player.visual.group.position.z);
+    if (!rain.visible) return;
+    const positionAttribute = rainGeometry.getAttribute('position');
+    const positions = positionAttribute.array;
+    for (let index = 0; index < positions.length; index += 6) {
+      positions[index + 1] -= dt * 15;
+      positions[index + 4] -= dt * 15;
+      if (positions[index + 4] < 0) {
+        positions[index + 1] += 14;
+        positions[index + 4] += 14;
+      }
+    }
+    positionAttribute.needsUpdate = true;
   }
 
   function render() { renderer.render(scene, camera); }
@@ -748,6 +829,8 @@
       nearbyInteractables: state.nearby ? [state.nearby.id] : [],
       viewport: { width: window.innerWidth, height: window.innerHeight, orientation: window.innerWidth >= window.innerHeight ? 'landscape' : 'portrait' },
       camera: { yaw: Number(state.cameraYaw.toFixed(3)), pitch: Number(state.cameraPitch.toFixed(3)) },
+      visualAssets: typeof GY.getThemeTextureStatus === 'function' ? GY.getThemeTextureStatus() : null,
+      environmentMood: usesTempleMood() ? 'rainy-temple' : 'misty-valley',
       controls: 'WASD/arrows move; mouse drag look; Space double jump; Shift dash; J/left-click attack; K/right-click dodge; Q/E skills; R party command; F interact; G fullscreen; Esc pause',
     };
   }

@@ -78,9 +78,17 @@
     const rig = new THREE.Group();
     group.add(rig);
 
-    const cloth = standard(opts.color);
+    const cloth = standard(opts.color, {
+      map: typeof GY.getThemeTexture === 'function' ? GY.getThemeTexture('cloth') : null,
+      flatShading: false,
+    });
     const trim = standard(opts.accent, { roughness: 0.48, metalness: 0.12 });
     const dark = standard(0x151c1d);
+    const weaponWood = standard(0x8a6a50, {
+      map: typeof GY.getThemeTexture === 'function' ? GY.getThemeTexture('cedar') : null,
+      roughness: 0.72,
+      flatShading: false,
+    });
     const skin = standard(opts.skin);
 
     const robe = addMesh(rig, new THREE.CylinderGeometry(0.43, 0.72, 1.6, 8), cloth, [0, 1.08, 0]);
@@ -99,7 +107,7 @@
     rig.add(leftArmPivot, rightArmPivot);
     const leftArm = addMesh(leftArmPivot, new THREE.CylinderGeometry(0.1, 0.13, 1.02, 7), cloth, [0, -0.51, 0]);
     const rightArm = addMesh(rightArmPivot, new THREE.CylinderGeometry(0.1, 0.13, 1.02, 7), cloth, [0, -0.51, 0]);
-    const weaponRig = addWeapon(rightArmPivot, opts.weapon, trim, dark);
+    const weaponRig = addWeapon(rightArmPivot, opts.weapon, trim, weaponWood);
 
     if (opts.hostile) {
       const aura = addMesh(rig, new THREE.TorusGeometry(0.86, 0.045, 6, 28), new THREE.MeshBasicMaterial({
