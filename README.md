@@ -4,6 +4,8 @@
 
 在线试玩：[GitHub Pages](https://canace22.github.io/codex-game-demo/)
 
+项目的产物规格、Agent 定义、工作流、模板和基线验收见 [product-specs/README.md](product-specs/README.md)。
+
 ## 启动
 
 直接双击或用浏览器打开项目根目录的 `index.html`。游戏不会请求服务端，也不会在运行时调用 AI API。
@@ -44,3 +46,11 @@
 图像生成素材位于 `assets/generated/`，角色与场景主题纹理位于 `assets/textures/`。在线与静态 HTTP 环境会使用生成的云灰布料、旧青石和熏黑杉木贴图；浏览器直接打开 `file://` 时会使用同色系的内存安全纹理，避免本地图片上传 WebGL 造成跨域错误。完整生成提示词和用途见两个素材目录的说明。
 
 探索段采用明亮的晴岚山谷色调；寺院防守与首领战会平滑切换到墨蓝雨幕，同时保持青绿色友方技能、象牙金治疗和暗绯红危险预警的辨识度。
+
+## 规格校验
+
+无需安装依赖即可检查脚本语法、入口顺序、任务/队伍合同、资源尺寸、规格 ID 和文档链接：
+
+```bash
+node scripts/validate-project.mjs
+```

@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.0.0",
+  "result": "PASS",
+  "productBaselineCommit": "913f8441a201d1067cc211261455a4953cb83828",
+  "specLibraryVersion": "1.0.0",
+  "checkedAt": "2026-08-20T05:13:52.772Z",
+  "command": "node scripts/validate-project.mjs",
+  "checks": {
+    "requiredFiles": 32,
+    "sourceScriptsParsed": 8,
+    "classicScriptOrder": "PASS",
+    "threeRevision": "149",
+    "questStages": 10,
+    "partyRoles": ["spear", "archer", "healer", "scout"],
+    "qaBridge": "PASS",
+    "textureProtocol": "PASS",
+    "imageAssets": 5,
+    "projectSpecificSpecs": "PASS",
+    "concreteIdFamilies": ["DSN", "ENG", "VIS", "QA", "OPS"],
+    "markdownDocumentsChecked": 14
+  },
+  "failures": 0
+}
