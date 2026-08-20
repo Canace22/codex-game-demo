@@ -4,7 +4,7 @@
 
 在线试玩：[GitHub Pages](https://canace22.github.io/codex-game-demo/)
 
-项目的产物规格、Agent 定义、工作流、模板和基线验收见 [product-specs/README.md](product-specs/README.md)。
+可直接复制到其他游戏项目的产物合同、八阶段流程、Agent 定义、质量门和模板见 [product-specs/README.md](product-specs/README.md)。本项目的具体过程只保留为实例，不污染通用母版。
 
 ## 启动
 
@@ -49,8 +49,8 @@
 
 ## 规格校验
 
-无需安装依赖即可检查脚本语法、入口顺序、任务/队伍合同、资源尺寸、规格 ID 和文档链接：
+无需安装依赖即可检查可复用流程、模板、Agent、质量门、实例和文档链接：
 
 ```bash
-node scripts/validate-project.mjs
+node scripts/validate-spec-process.mjs
 ```

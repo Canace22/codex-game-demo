@@ -1,43 +1,52 @@
-# AI Agent 生产工作单
+# 工作单：{{WORK_ORDER_TITLE}}
 
 | 字段 | 值 |
 | --- | --- |
-| 工作单 ID | `<WO-YYYYMMDD-NNN>` |
-| 批次目标 | `<一个可独立验收的目标>` |
-| 项目/版本 | `归云录 / <提交或版本>` |
-| 主责 Agent | `<agent_id>` |
-| 基础规格 ID | `<一个或多个基础规格>` |
-| 具体规格 ID | `<一个或多个已批准实例>` |
-| 允许修改路径 | `<精确路径列表>` |
-| 禁止修改 | `<共享接口、非目标和安全约束>` |
+| `work_order_id` | `{{WORK_ORDER_ID}}` |
+| `project_id` | `{{PROJECT_ID}}` |
+| `baseline` | `{{COMMIT_OR_VERSION}}` |
+| `owner_agent` | `{{AGENT_ID}}` |
+| `target_spec` | `{{SPEC_ID}}` |
+| `status` | `ready` |
+
+## 单一目标
+
+`{{ONE_VERIFIABLE_GOAL}}`
 
 ## 输入
 
-| 输入 | 版本/路径 | 状态 |
-| --- | --- | --- |
-| `<上游产物>` | `<版本或路径>` | `approved/verified` |
+- 已批准规格：`{{APPROVED_SPECS}}`
+- 现状文件/资源：`{{CURRENT_INPUTS}}`
+- 用户约束：`{{USER_CONSTRAINTS}}`
+
+## 允许与禁止
+
+- `allowed_paths`：`{{ALLOWED_PATHS}}`
+- `frozen_contracts`：`{{FROZEN_CONTRACTS}}`
+- `non_goals`：`{{NON_GOALS}}`
+- 外部写入权限：`{{EXTERNAL_AUTHORITY}}`
 
 ## 输出
 
-| 输出 | 目标路径 | 消费方 |
+| 输出 | 路径 | 消费方 |
 | --- | --- | --- |
-| `<产物>` | `<路径>` | `<下游>` |
+| `{{OUTPUT}}` | `{{OUTPUT_PATH}}` | `{{CONSUMER}}` |
 
 ## 验收矩阵
 
 | 层级 | 检查 | 预期证据 |
 | --- | --- | --- |
-| L0 | `<结构、ID、文件和引用>` | `<命令输出>` |
-| L1 | `<逻辑和边界>` | `<断言或测试>` |
-| L2 | `<静态启动与集成>` | `<项目本地检查>` |
-| L3 | `<桌面/手机真实浏览器体验>` | `<截图和流程记录>` |
+| L0 | `{{L0_CHECK}}` | `{{L0_EVIDENCE}}` |
+| L1 | `{{L1_CHECK}}` | `{{L1_EVIDENCE}}` |
+| L2 | `{{L2_CHECK}}` | `{{L2_EVIDENCE}}` |
+| L3 | `{{L3_CHECK}}` | `{{L3_EVIDENCE}}` |
 
-## 回滚与重验
+## 回滚与失败处理
 
-- 回滚点：`<提交或文件备份>`
-- 失败处理：`<恢复策略>`
-- 相邻重验：`<直接和间接消费方>`
+- 回滚点：`{{ROLLBACK_POINT}}`
+- 阻塞上报：`{{ESCALATION}}`
+- 相邻重验：`{{ADJACENT_REGRESSION}}`
 
-## 完成回报
+## 交付格式
 
-按 `07-agent-definitions.md` 的“产出 / 验收 / 偏差 / 风险与后续”格式提交。
+按“产出 / 验收 / 证据 / 偏差 / 风险”返回；不得用实现描述替代实际结果。

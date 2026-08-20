@@ -1,38 +1,46 @@
-# 产物批次验收报告
+# 验收报告：{{WORK_ORDER_ID}}
 
 | 字段 | 值 |
 | --- | --- |
-| 工作单 ID | `<ID>` |
-| 验收版本 | `<提交或版本>` |
-| 验收日期 | `<YYYY-MM-DD>` |
-| 验收 Agent | `<agent_id>` |
-| 结论 | `PASS / FAIL / PASS WITH DEVIATION` |
+| 项目 | `{{PROJECT_ID}}` |
+| 验收版本 | `{{COMMIT_OR_VERSION}}` |
+| 验收日期 | `{{DATE}}` |
+| QA Agent | `{{QA_AGENT_ID}}` |
+| 结论 | `PASS / PASS WITH DEVIATION / FAIL` |
 
-## 产物清单
+## 验收范围
 
-| 规格 ID | 输出路径 | 状态 |
-| --- | --- | --- |
-| `<ID>` | `<路径>` | `verified` |
+- 规格：`{{SPEC_IDS}}`
+- 输出：`{{OUTPUTS}}`
+- 环境：`{{ENVIRONMENTS}}`
+- 非范围：`{{OUT_OF_SCOPE}}`
 
-## 质量门结果
+## 质量门
 
-| 层级 | 检查项 | 结果 | 证据 |
+| 层级 | 实际检查 | 结果 | 证据 |
 | --- | --- | --- | --- |
-| L0 | `<结构>` | `PASS/FAIL` | `<路径/摘要>` |
-| L1 | `<逻辑>` | `PASS/FAIL` | `<测试/摘要>` |
-| L2 | `<集成>` | `PASS/FAIL` | `<构建/契约报告>` |
-| L3 | `<体验>` | `PASS/FAIL` | `<视口、截图和流程>` |
+| L0 | `{{L0_ACTUAL}}` | `{{L0_RESULT}}` | `{{L0_EVIDENCE}}` |
+| L1 | `{{L1_ACTUAL}}` | `{{L1_RESULT}}` | `{{L1_EVIDENCE}}` |
+| L2 | `{{L2_ACTUAL}}` | `{{L2_RESULT}}` | `{{L2_EVIDENCE}}` |
+| L3 | `{{L3_ACTUAL}}` | `{{L3_RESULT}}` | `{{L3_EVIDENCE}}` |
+| 发布门 | `{{RELEASE_ACTUAL}}` | `{{RELEASE_RESULT}}` | `{{RELEASE_EVIDENCE}}` |
+
+## 场景结果
+
+| 场景 | 预期 | 实际 | 结果 |
+| --- | --- | --- | --- |
+| 最小启动 | `{{START_EXPECTED}}` | `{{START_ACTUAL}}` | `{{START_RESULT}}` |
+| 黄金路径 | `{{GOLDEN_EXPECTED}}` | `{{GOLDEN_ACTUAL}}` | `{{GOLDEN_RESULT}}` |
+| 失败恢复 | `{{RECOVERY_EXPECTED}}` | `{{RECOVERY_ACTUAL}}` | `{{RECOVERY_RESULT}}` |
+| 关键机制 | `{{MECHANIC_EXPECTED}}` | `{{MECHANIC_ACTUAL}}` | `{{MECHANIC_RESULT}}` |
+| 跨端/发布 | `{{DELIVERY_EXPECTED}}` | `{{DELIVERY_ACTUAL}}` | `{{DELIVERY_RESULT}}` |
 
 ## 缺陷与偏差
 
-| ID | 严重度 | 影响规格 | 状态 | 处理 |
+| ID | 严重度 | 状态 | 影响 | 责任人/失效条件 |
 | --- | --- | --- | --- | --- |
-| `<ID>` | `<P0-P3>` | `<规格 ID>` | `<open/closed/accepted>` | `<说明>` |
-
-## 回归范围
-
-列出本批次实际重验的直接消费方、相邻流程、失败恢复、输入方式和视口。
+| `{{DEVIATION_ID}}` | `{{SEVERITY}}` | `{{STATUS}}` | `{{IMPACT}}` | `{{OWNER_AND_EXPIRY}}` |
 
 ## 最终结论
 
-说明是否允许进入下一阶段，以及尚存风险、责任人和失效日期。
+`{{FINAL_DECISION_AND_NEXT_STEP}}`

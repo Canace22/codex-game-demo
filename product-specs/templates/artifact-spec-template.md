@@ -1,48 +1,62 @@
-# 产物规格：<名称>
-
-## 分类
+# 产物规格：{{ARTIFACT_NAME}}
 
 | 字段 | 值 |
 | --- | --- |
-| 目录 ID | `<短编号>` |
-| 基础规格 ID | `<TYPE.SUBTYPE...>` |
-| 具体规格 ID | `<BASE_SPEC_ID.INSTANCE>` |
-| 产物类型 | `<类型>` |
-| 产物子类型 | `<子类型>` |
-| 基础规格版本 | `<版本>` |
-| 状态 | `draft` |
-| 责任 Agent | `<agent_id>` |
-| 变更原因 | `<新增/缺陷/体验改进/依赖升级>` |
+| `spec_id` | `{{BASE_SPEC_ID}}.{{PROJECT_ID}}.{{ARTIFACT_ID}}` |
+| `base_spec` | `{{BASE_SPEC_ID}}` |
+| `version` | `{{VERSION}}` |
+| `status` | `draft` |
+| `owner_agent` | `{{AGENT_ID}}` |
+| `change_reason` | `{{CHANGE_REASON}}` |
 
-## 产物基础规格
+## 目的与非目标
 
-| 项目 | 规格 |
-| --- | --- |
-| 目的 | `<下游价值与消费方>` |
-| 输入契约 | `<必需上游产物、字段和状态>` |
-| 输出契约 | `<文件/数据/图像/测试/证据>` |
-| 不变量 | `<不可协商约束>` |
-| 命名规则 | `<ID、键和路径>` |
-| 依赖 | `<规格 ID 列表>` |
-| 基础验收 | `<L0-L3 检查>` |
+- 目的：`{{PURPOSE}}`
+- 玩家/业务价值：`{{VALUE}}`
+- 非目标：`{{NON_GOALS}}`
 
-## 具体产物规格
+## 输入合同
 
-| 项目 | 规格 |
-| --- | --- |
-| 实例 ID | `<唯一 ID>` |
-| 内容与参数 | `<精确数量、尺寸、数值、位置和条件>` |
-| 目标路径 | `<完整路径列表>` |
-| 消费方 | `<代码、资源或场景>` |
-| 完成条件 | `<逐项可验证条件>` |
-| 证据路径 | `<命令、报告或截图>` |
+| 输入 | 版本/状态 | 来源 | 必需条件 |
+| --- | --- | --- | --- |
+| `{{INPUT_ID}}` | `{{INPUT_VERSION}}` | `{{INPUT_SOURCE}}` | `{{INPUT_REQUIREMENT}}` |
 
-## Agent 生产指令
+## 输出合同
 
-```text
-只描述本产物的输入、动作、允许路径、禁止项、门禁和交付格式。
-```
+| 输出 | 精确路径 | 格式/结构 | 数量/参数 |
+| --- | --- | --- | --- |
+| `{{OUTPUT_ID}}` | `{{OUTPUT_PATH}}` | `{{OUTPUT_FORMAT}}` | `{{OUTPUT_PARAMETERS}}` |
 
-## 偏差记录
+## 消费合同
 
-无。
+| 消费方 | 加载/调用方式 | 成功状态 | 失败行为 |
+| --- | --- | --- | --- |
+| `{{CONSUMER}}` | `{{CONSUMPTION}}` | `{{SUCCESS_STATE}}` | `{{FAILURE_BEHAVIOR}}` |
+
+## 冻结不变量
+
+- `{{INVARIANT_1}}`
+- `{{INVARIANT_2}}`
+- `{{INVARIANT_3}}`
+
+## 验收
+
+| 层级 | 场景/断言 | 环境 | 证据 |
+| --- | --- | --- | --- |
+| L0 | `{{L0_ASSERTION}}` | `{{L0_ENV}}` | `{{L0_EVIDENCE}}` |
+| L1 | `{{L1_ASSERTION}}` | `{{L1_ENV}}` | `{{L1_EVIDENCE}}` |
+| L2 | `{{L2_ASSERTION}}` | `{{L2_ENV}}` | `{{L2_EVIDENCE}}` |
+| L3 | `{{L3_ASSERTION}}` | `{{L3_ENV}}` | `{{L3_EVIDENCE}}` |
+
+## 依赖与影响
+
+- `depends_on`：`{{DEPENDENCIES}}`
+- `consumed_by`：`{{CONSUMERS}}`
+- `verified_by`：`{{VERIFICATION}}`
+- 变更等级：`{{CHANGE_LEVEL}}`
+- 相邻回归：`{{ADJACENT_REGRESSION}}`
+
+## 偏差与回滚
+
+- 偏差：`{{DEVIATION_IDS_OR_NONE}}`
+- 回滚点：`{{ROLLBACK_POINT}}`
