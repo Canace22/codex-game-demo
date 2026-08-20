@@ -36,7 +36,10 @@ canvas {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  background: radial-gradient(circle at 50% 25%, #829d9e 0, #263f3e 42%, #101c1b 100%);
+  background:
+    linear-gradient(0deg, rgba(18, 39, 38, 0.34), rgba(145, 170, 167, 0.08)),
+    url("assets/generated/distant-valley.png") center center / cover no-repeat,
+    #789793;
 }
 
 #game-canvas {
@@ -118,26 +121,15 @@ canvas {
   place-items: center;
   overflow: hidden;
   background:
-    linear-gradient(90deg, rgba(7, 15, 17, 0.83), rgba(15, 35, 34, 0.38) 48%, rgba(7, 15, 17, 0.79)),
-    radial-gradient(circle at 48% 28%, rgba(158, 192, 181, 0.22), transparent 38%);
+    linear-gradient(90deg, rgba(7, 15, 17, 0.58), rgba(15, 35, 34, 0.16) 48%, rgba(7, 15, 17, 0.56)),
+    linear-gradient(0deg, rgba(8, 18, 18, 0.48), transparent 55%),
+    url("assets/generated/title-hero.png") center center / cover no-repeat;
   transition: opacity 700ms ease, visibility 700ms;
 }
 
 .start-screen::before,
 .start-screen::after {
-  content: "";
-  position: absolute;
-  inset: auto -10% -22% -10%;
-  height: 56%;
-  background: linear-gradient(165deg, transparent 30%, rgba(97, 124, 113, 0.24) 31%, rgba(22, 48, 44, 0.96) 66%);
-  clip-path: polygon(0 70%, 13% 31%, 27% 63%, 44% 10%, 59% 59%, 78% 18%, 100% 73%, 100% 100%, 0 100%);
-}
-
-.start-screen::after {
-  bottom: -32%;
-  opacity: 0.5;
-  transform: scaleX(-1);
-  filter: blur(3px);
+  display: none;
 }
 
 .start-screen.is-hidden {
@@ -303,10 +295,4 @@ kbd {
   .start-card h1 { font-size: 44px; }
   .start-card__intro { margin: 14px auto; line-height: 1.5; }
   .controls-grid { margin-bottom: 14px; }
-  .hud { padding-top: 10px; }
-  .hud__hint { display: none; }
-}
-
-@media (max-width: 760px) and (orientation: portrait) {
-  .rotate-device { display: grid; }
 }
