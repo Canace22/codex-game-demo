@@ -653,30 +653,41 @@
     Object.keys(state.keys).forEach((key) => { state.keys[key] = false; });
     state.mobileMove.x = 0;
     state.mobileMove.y = 0;
+    looking = false;
+    lookPointer = null;
+    lookButton = -1;
+    canvas.classList.remove('is-looking');
   });
 
   let looking = false;
   let lookPointer = null;
+  let lookButton = -1;
+  let lookStartX = 0;
+  let lookStartY = 0;
   let previousX = 0;
   let previousY = 0;
+  const LOOK_DRAG_THRESHOLD = 4;
   canvas.addEventListener('pointerdown', (event) => {
-    if (event.pointerType === 'mouse' && event.button === 0) {
-      performAction('attack');
-      return;
-    }
-    if (event.pointerType === 'mouse' && event.button === 2) {
-      performAction('dodge');
-      looking = true;
-    } else if (event.pointerType !== 'mouse') looking = true;
-    if (looking) {
-      lookPointer = event.pointerId;
-      previousX = event.clientX;
-      previousY = event.clientY;
-      canvas.setPointerCapture?.(event.pointerId);
-    }
+    if (lookPointer !== null) return;
+    if (event.pointerType === 'mouse' && ![0, 1, 2].includes(event.button)) return;
+    event.preventDefault();
+    lookPointer = event.pointerId;
+    lookButton = event.pointerType === 'mouse' ? event.button : -1;
+    lookStartX = event.clientX;
+    lookStartY = event.clientY;
+    previousX = event.clientX;
+    previousY = event.clientY;
+    looking = event.pointerType !== 'mouse' || event.button === 1;
+    if (looking) canvas.classList.add('is-looking');
+    canvas.setPointerCapture?.(event.pointerId);
   });
   canvas.addEventListener('pointermove', (event) => {
-    if (!looking || event.pointerId !== lookPointer) return;
+    if (event.pointerId !== lookPointer) return;
+    if (!looking && (lookButton === 0 || lookButton === 2)) {
+      looking = Math.hypot(event.clientX - lookStartX, event.clientY - lookStartY) >= LOOK_DRAG_THRESHOLD;
+      if (looking) canvas.classList.add('is-looking');
+    }
+    if (!looking) return;
     state.cameraYaw -= (event.clientX - previousX) * 0.006;
     state.cameraPitch = GY.clamp(state.cameraPitch - (event.clientY - previousY) * 0.0032, -0.5, 0.28);
     previousX = event.clientX;
@@ -684,11 +695,21 @@
   });
   function stopLook(event) {
     if (event.pointerId !== lookPointer) return;
+    const clickAction = event.type === 'pointerup' && !looking
+      ? (lookButton === 0 ? 'attack' : (lookButton === 2 ? 'dodge' : ''))
+      : '';
     looking = false;
     lookPointer = null;
+    lookButton = -1;
+    canvas.classList.remove('is-looking');
+    if (clickAction) performAction(clickAction);
   }
   canvas.addEventListener('pointerup', stopLook);
   canvas.addEventListener('pointercancel', stopLook);
+  canvas.addEventListener('lostpointercapture', stopLook);
+  canvas.addEventListener('auxclick', (event) => {
+    if (event.button === 1) event.preventDefault();
+  });
   canvas.addEventListener('contextmenu', (event) => event.preventDefault());
   window.addEventListener('resize', resize);
   document.addEventListener('fullscreenchange', resize);

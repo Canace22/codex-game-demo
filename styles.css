@@ -46,6 +46,11 @@ canvas {
   display: block;
   outline: none;
   touch-action: none;
+  cursor: grab;
+}
+
+#game-canvas.is-looking {
+  cursor: grabbing;
 }
 
 .hud {
