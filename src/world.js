@@ -30,6 +30,7 @@
     const waterRipples = [];
     const spectralPieces = [];
     const flickerMeshes = [];
+    const lanternFlames = Object.create(null);
     let currentStage = '';
     let elapsed = 0;
 
@@ -386,6 +387,50 @@
       return lamp;
     }
 
+    function createVillageLantern(key, x, z) {
+      const ground = getSurface(x, z);
+      const y = ground ? ground.y : 0.78;
+      addCylinder(0.22, 0.28, 0.9, 7, materials.stoneDark, [x, y + 0.45, z], { name: '灯座' });
+      addCylinder(0.07, 0.07, 1.15, 6, materials.wood, [x, y + 1.5, z]);
+      const emberMaterial = makeMaterial(0x384850, {
+        roughness: 0.6,
+        emissive: 0x16232a,
+        emissiveIntensity: 0.32,
+      });
+      const flame = addMesh(new THREE.OctahedronGeometry(0.3, 0), emberMaterial, [x, y + 2.1, z], {
+        castShadow: false,
+        receiveShadow: false,
+        name: '平安灯',
+      });
+      flame.userData.phase = x * 0.7 + z * 0.2;
+      flame.userData.lit = false;
+      flickerMeshes.push(flame);
+      lanternFlames[key] = flame;
+      createMarker(key, [x, y + 3.1, z], 'lantern');
+    }
+
+    function lightLantern(key) {
+      const flame = lanternFlames[key];
+      if (!flame || flame.userData.lit) return false;
+      flame.userData.lit = true;
+      flame.material.color.setHex(0xffba55);
+      flame.material.emissive.setHex(0xff7027);
+      flame.material.emissiveIntensity = 1.6;
+      if (markers[key]) markers[key].visible = false;
+      return true;
+    }
+
+    function resetLanterns() {
+      Object.keys(lanternFlames).forEach(function (key) {
+        const flame = lanternFlames[key];
+        flame.userData.lit = false;
+        flame.material.color.setHex(0x384850);
+        flame.material.emissive.setHex(0x16232a);
+        flame.material.emissiveIntensity = 0.32;
+        if (markers[key]) markers[key].visible = true;
+      });
+    }
+
     function createGate() {
       const gate = new THREE.Group();
       gate.name = '栖岚山门';
@@ -522,6 +567,10 @@
       createNpc(-6.8, -69, 0x806a56, '避难村民', 0.3);
       createNpc(6.2, -73.2, 0x5d5968, '守村青年', -0.5);
       createMarker('villageElder', [-3.8, 3.45, -57], 'npc');
+
+      createVillageLantern('villageLantern1', -8, -53);
+      createVillageLantern('villageLantern2', 9.5, -57);
+      createVillageLantern('villageLantern3', -7, -73);
     }
 
     function createTemple() {
@@ -728,6 +777,9 @@
       BRIDGE_MID: { x: -1.8, y: 0.66, z: -9.4, facing: Math.PI },
       BRIDGE_SOUTH: { x: -0.2, y: 0.82, z: -31.8, facing: Math.PI },
       VILLAGE: { x: 0, y: 0.78, z: -58, facing: Math.PI },
+      VILLAGE_LANTERN_1: { x: -8, y: 0.78, z: -53, facing: 0 },
+      VILLAGE_LANTERN_2: { x: 9.5, y: 0.78, z: -57, facing: 0 },
+      VILLAGE_LANTERN_3: { x: -7, y: 0.78, z: -73, facing: 0 },
       TEMPLE: { x: 0, y: 0.75, z: -101, facing: Math.PI },
       ARENA: { x: 0, y: 0.78, z: -108, facing: Math.PI },
       BOSS: { x: 0, y: 0.78, z: -119, facing: 0 },
@@ -868,6 +920,9 @@
           || currentStage === 'BRIDGE_CROSSING';
         markers.bridgeSouth.visible = currentStage === 'BRIDGE_CROSSING';
         markers.villageElder.visible = currentStage === 'VILLAGE_ARRIVAL';
+        ['villageLantern1', 'villageLantern2', 'villageLantern3'].forEach(function (key) {
+          if (markers[key]) markers[key].visible = currentStage === 'VILLAGE_LANTERNS' && !lanternFlames[key].userData.lit;
+        });
         markers.templeEntrance.visible = currentStage === 'TEMPLE_DEFENSE';
         markers.bossFocus.visible = currentStage === 'BOSS_INTRO'
           || currentStage === 'BOSS_FIGHT';
@@ -934,6 +989,8 @@
       getSurface,
       getSpawn,
       getZone,
+      lightLantern,
+      resetLanterns,
       setStage,
       resolveMove,
       markers,

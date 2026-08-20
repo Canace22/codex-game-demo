@@ -24,6 +24,7 @@
     checkpointPosition: null,
     roadCleared: false,
     villageBriefed: false,
+    lanterns: { villageLantern1: false, villageLantern2: false, villageLantern3: false },
     bridge: {
       usedDash: false,
       usedAirDash: false,
@@ -257,6 +258,11 @@
       setCheckpoint('BRIDGE_SOUTH');
       ui.showToast('已抵达对岸，澄江村就在前方', 'success');
       audio.play('checkpoint');
+    } else if (nextStage === Stage.VILLAGE_LANTERNS) {
+      combat.setMode('idle');
+      state.lanterns = { villageLantern1: false, villageLantern2: false, villageLantern3: false };
+      world.resetLanterns();
+      ui.showToast('平安灯 0/3 · 走遍澄江村找到并点燃它们', 'focus');
     } else if (nextStage === Stage.TEMPLE_DEFENSE) {
       setCheckpoint('ARENA');
       combat.resetParty(state.checkpointPosition);
@@ -298,9 +304,12 @@
       current = state.bridge.steppingLandings;
       total = 6;
       stageLabel = `${state.bridge.usedDash ? '疾冲✓' : '疾冲'} · ${state.bridge.usedDoubleJump ? '二段跳✓' : '二段跳'}`;
-    } else if (state.stage === Stage.VILLAGE_ARRIVAL && state.villageBriefed) {
-      objective = '赶往照水寺保护被困村民';
-      stageLabel = '寺院方向';
+    } else if (state.stage === Stage.VILLAGE_LANTERNS) {
+      const lit = Object.values(state.lanterns).filter(Boolean).length;
+      current = lit;
+      total = 3;
+      stageLabel = `平安灯 ${lit}/3`;
+      if (lit >= 3) objective = '平安灯已点齐，赶往照水寺保护被困村民';
     } else if (state.stage === Stage.TEMPLE_DEFENSE) {
       current = combat.state.wave;
       total = combat.state.wavesTotal;
@@ -324,6 +333,17 @@
     } else if (state.stage === Stage.VILLAGE_ARRIVAL && !state.villageBriefed) {
       const elder = world.getSpawn('VILLAGE');
       if (GY.distance2D(position, elder) < 5) state.nearby = { id: 'village-elder', text: '询问照水寺险情', key: 'F', visible: true, urgent: true };
+    } else if (state.stage === Stage.VILLAGE_LANTERNS) {
+      const lanternIds = ['villageLantern1', 'villageLantern2', 'villageLantern3'];
+      for (let i = 0; i < lanternIds.length; i += 1) {
+        const id = lanternIds[i];
+        if (state.lanterns[id]) continue;
+        const spot = world.getSpawn(id.replace('villageLantern', 'VILLAGE_LANTERN_'));
+        if (spot && GY.distance2D(position, spot) < 3.6) {
+          state.nearby = { id, text: '点燃平安灯', key: 'F', visible: true, urgent: true };
+          break;
+        }
+      }
     } else if (state.stage === Stage.RETURN_TO_GATE) {
       const npc = world.getSpawn('GATE_MASTER');
       if (GY.distance2D(position, npc) < 4.8) state.nearby = { id: 'return-gate', text: '向山门执事交付任务', key: 'F', visible: true, urgent: true };
@@ -335,8 +355,18 @@
     if (state.nearby.id === 'gate-master') setStage(Stage.ROAD_TO_BRIDGE);
     else if (state.nearby.id === 'village-elder') {
       state.villageBriefed = true;
-      ui.showToast('村民：影徒都涌向了照水寺！', 'danger');
+      ui.showToast('村民：影徒都涌向了照水寺！先点燃三盏平安灯护住村子！', 'danger');
       audio.play('danger');
+      setStage(Stage.VILLAGE_LANTERNS);
+    } else if (state.nearby.id === 'villageLantern1' || state.nearby.id === 'villageLantern2' || state.nearby.id === 'villageLantern3') {
+      const key = state.nearby.id;
+      if (world.lightLantern(key)) {
+        state.lanterns[key] = true;
+        const lit = Object.values(state.lanterns).filter(Boolean).length;
+        audio.play('checkpoint');
+        if (lit >= 3) ui.showToast('平安灯已全部点燃，速往照水寺！', 'success');
+        else ui.showToast(`平安灯 ${lit}/3`, 'focus');
+      }
     } else if (state.nearby.id === 'return-gate') setStage(Stage.COMPLETE);
     return true;
   }
@@ -501,6 +531,7 @@
       player.canWaterStep = true;
       const canAdvanceCheckpoint = state.stage === Stage.BRIDGE_CROSSING
         || state.stage === Stage.VILLAGE_ARRIVAL
+        || state.stage === Stage.VILLAGE_LANTERNS
         || state.stage === Stage.TEMPLE_DEFENSE
         || state.stage === Stage.BOSS_INTRO
         || state.stage === Stage.BOSS_FIGHT
@@ -540,7 +571,7 @@
     const position = player.visual.group.position;
     if (state.stage === Stage.ROAD_TO_BRIDGE && state.roadCleared && position.z <= 12.5) setStage(Stage.BRIDGE_CROSSING);
     else if (state.stage === Stage.BRIDGE_CROSSING && position.z < -31.2) setStage(Stage.VILLAGE_ARRIVAL);
-    else if (state.stage === Stage.VILLAGE_ARRIVAL && state.villageBriefed && position.z < -96) setStage(Stage.TEMPLE_DEFENSE);
+    else if (state.stage === Stage.VILLAGE_LANTERNS && Object.values(state.lanterns).every(Boolean) && position.z < -96) setStage(Stage.TEMPLE_DEFENSE);
     else if (state.stage === Stage.BOSS_INTRO && state.stageTime >= 3.6) setStage(Stage.BOSS_FIGHT);
   }
 
@@ -819,6 +850,7 @@
         cooldowns: Object.fromEntries(Object.entries(player.cooldowns).map(([key, value]) => [key, Number(value.toFixed(2))])),
       },
       bridge: Object.assign({}, state.bridge),
+      lanterns: Object.assign({}, state.lanterns),
       companions: combatState.companions,
       partyOrder: combatState.command,
       villagers: combatState.villagers,
